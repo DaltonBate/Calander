@@ -1,7 +1,19 @@
 
 const date = new Date();
+const eventsKey = 'calendarEvents';
 
-const events = {}; // This will store events in the format { 'YYYY-MM-DD': [event1, event2, ...] }
+// Load events from local storage
+const loadEvents = () => {
+    const storedEvents = localStorage.getItem(eventsKey);
+    return storedEvents ? JSON.parse(storedEvents) : {};
+};
+
+// Save events to local storage
+const saveEvents = () => {
+    localStorage.setItem(eventsKey, JSON.stringify(events));
+};
+
+const events = loadEvents();
 
 const renderCalendar = () => {
     date.setDate(1); // Set to the first day of the month
@@ -39,7 +51,8 @@ const renderCalendar = () => {
 
         let eventsMarkup = '';
         if (events[formattedDate]) {
-            eventsMarkup = `<ul>${events[formattedDate].map((event, index) => `<li>${event} <button class="delete-event" data-date="${formattedDate}" data-index="${index}">Delete</button></li>`).join('')}</ul>`;
+            eventsMarkup = `<ul>${events[formattedDate].map((event, index) => `<li>${event}
+            <button class="delete-event" data-date="${formattedDate}" data-index="${index}">Delete</button></li>`).join('')}</ul>`;
         }
 
         days += `<div class="${todayClass}" data-date="${formattedDate}">${i}${eventsMarkup}</div>`;
@@ -75,6 +88,7 @@ document.getElementById('add-event').addEventListener('click', () => {
         }
         events[eventDate].push(eventDescription);
         document.getElementById('event-description').value = ''; // Clear input
+        saveEvents(); // Save to local storage
         renderCalendar();
     } else {
         alert('Please enter both date and description');
@@ -95,6 +109,7 @@ document.querySelector('.days').addEventListener('click', (event) => {
                 delete events[dateToDelete];
             }
 
+            saveEvents(); // Save to local storage
             renderCalendar();
         }
     }
